@@ -1,0 +1,96 @@
+{% extends 'inventory/base.html' %}
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="container">
+    <h2 class="mt-4">Billing System</h2>
+    <form method="POST" action="{% url 'billing' %}">
+        {% csrf_token %}
+
+        <div class="mb-3">
+            {{ bill_form|crispy }}
+        </div>
+
+        <h3>Items</h3>
+        <div id="items">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label for="item_name" class="form-label">Item Name:</label>
+                    <input type="text" class="form-control" name="item_name[]">
+                </div>
+                <div class="col-md-3">
+                    <label for="price" class="form-label">Price:</label>
+                    <input type="number" class="form-control" step="0.01" name="price[]">
+                </div>
+                <div class="col-md-3">
+                    <label for="quantity" class="form-label">Quantity:</label>
+                    <input type="number" class="form-control" name="quantity[]">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="button" class="btn btn-danger" onclick="removeItem(this)">Remove</button>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="btn btn-secondary mt-3" onclick="addItem()">Add Item</button>
+        <button type="submit" class="btn btn-primary mt-3">Generate Bill</button>
+    </form>
+
+    {% if bill %}
+    <div class="mt-5">
+        <h3>Generated Bill</h3>
+        <p><strong>Bill Number:</strong> {{ bill.bill_number }}</p>
+        <p><strong>Buyer Location:</strong> {{ bill.buyer_location }}</p>
+        <p><strong>Total Amount:</strong> ₹{{ bill.total_amount }}</p>
+
+        {% if bill.gst_amount %}
+        <p><strong>GST Amount:</strong> ₹{{ bill.gst_amount }}</p>
+        {% endif %}
+        {% if bill.sgst_amount %}
+        <p><strong>SGST Amount:</strong> ₹{{ bill.sgst_amount }}</p>
+        {% endif %}
+        {% if bill.cgst_amount %}
+        <p><strong>CGST Amount:</strong> ₹{{ bill.cgst_amount }}</p>
+        {% endif %}
+
+        <h4>Items:</h4>
+        <ul>
+            {% for item in items %}
+            <li>{{ item.item_name }} - ₹{{ item.price }} x {{ item.quantity }} = ₹{{ item.price|floatformat:2 }}</li>
+            {% endfor %}
+        </ul>
+
+        <h3><strong>Grand Total:</strong> ₹{{ bill.total_amount|floatformat:2 }}</h3>
+
+        <a href="{% url 'generate_invoice' bill.id %}" class="btn btn-success mt-3">Download Invoice</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    function addItem() {
+        let div = document.createElement('div');
+        div.classList.add('row', 'g-3', 'mt-2');
+        div.innerHTML = `<div class="col-md-4">
+                            <label class="form-label">Item Name:</label>
+                            <input type="text" class="form-control" name="item_name[]">
+                         </div>
+                         <div class="col-md-3">
+                            <label class="form-label">Price:</label>
+                            <input type="number" class="form-control" step="0.01" name="price[]">
+                         </div>
+                         <div class="col-md-3">
+                            <label class="form-label">Quantity:</label>
+                            <input type="number" class="form-control" name="quantity[]">
+                         </div>
+                         <div class="col-md-2 d-flex align-items-end">
+                            <button type="button" class="btn btn-danger" onclick="removeItem(this)">Remove</button>
+                         </div>`;
+        document.getElementById('items').appendChild(div);
+    }
+    
+    function removeItem(button) {
+        button.parentElement.parentElement.remove();
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h2>Shop Name</h2>
+    <p>Date: {{ bill.date_of_purchase }}</p>
+    <p>Bill Number: {{ bill.bill_number }}</p>
+    <p>Buyer Name: {{ bill.buyer_name }}</p>
+    <p>Location: {{ bill.buyer_location }}</p>
+
+    <h3>Items Purchased</h3>
+    <table>
+        <tr>
+            <th>Item</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+        </tr>
+        {% for item in items %}
+        <tr>
+            <td>{{ item.item_name }}</td>
+            <td>{{ item.price }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ item.total_price }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    {% if bill.gst_amount %}
+    <p>GST: ₹{{ bill.gst_amount }}</p>
+    {% else %}
+    <p>SGST: ₹{{ bill.sgst_amount }}</p>
+    <p>CGST: ₹{{ bill.cgst_amount }}</p>
+    {% endif %}
+
+    <h3>Grand Total: ₹{{ grand_total }}</h3>
+</div>
+{% endblock %}

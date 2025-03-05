@@ -25,3 +25,26 @@ class InventoryItem(models.Model):
     def __str__(self):
         return f"{self.brand} - {self.category.name}"  # Updated __str__ method
     
+
+class Bill_details(models.Model):
+    bill_number = models.CharField(max_length=10, unique=True)
+    buyer_name = models.CharField(max_length=255)
+    buyer_location = models.CharField(max_length=255)
+    date_of_purchase = models.DateTimeField(auto_now_add=True)
+    total_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    gst_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    sgst_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    cgst_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    without_gst = models.BooleanField(default=False)
+
+    def _str_(self):
+        return self.bill_number
+
+class Items_details(models.Model):
+    bill = models.ForeignKey(Bill_details, on_delete=models.CASCADE, related_name="items")
+    item_name = models.CharField(max_length=255)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    quantity = models.PositiveIntegerField()
+
+    def total_price(self):
+        return self.price * self.quantity
